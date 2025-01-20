@@ -30,7 +30,7 @@ The application is now runnable using `java -jar target/quarkus-app/quarkus-run.
 If you want to build an _über-jar_, execute the following command:
 
 ```shell script
-mvnw package -Dquarkus.package.jar.type=uber-jar
+mvn package -Dquarkus.package.jar.type=uber-jar
 ```
 
 The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
@@ -40,13 +40,13 @@ The application, packaged as an _über-jar_, is now runnable using `java -jar ta
 You can create a native executable using:
 
 ```shell script
-mvnw package -Dnative
+mvn package -Dnative
 ```
 
 Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
 
 ```shell script
-mvnw package -Dnative -Dquarkus.native.container-build=true
+mvn package -Dnative -Dquarkus.native.container-build=true
 ```
 
 You can then execute your native executable with: `./target/customer-api-provider-1.0.0-SNAPSHOT-runner`
