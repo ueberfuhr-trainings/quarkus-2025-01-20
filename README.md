@@ -1,5 +1,7 @@
 # Quarkus Grundlagen
 
+[![CI Build](https://github.com/ueberfuhr-trainings/quarkus-2025-01-20/actions/workflows/maven.yml/badge.svg)](https://github.com/ueberfuhr-trainings/quarkus-2025-01-20/actions/workflows/maven.yml)
+
 Dieses Repository enthält Codesamples zum Quarkus-Grundlagenkurs.
 
 - [Dokumentation](docs)
