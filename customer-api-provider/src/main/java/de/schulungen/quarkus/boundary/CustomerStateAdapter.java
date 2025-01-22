@@ -1,7 +1,9 @@
-package de.schulungen.quarkus;
+package de.schulungen.quarkus.boundary;
 
+import de.schulungen.quarkus.domain.CustomerState;
 import jakarta.json.bind.adapter.JsonbAdapter;
 
+@Deprecated
 public class CustomerStateAdapter
   implements JsonbAdapter<CustomerState, String> {
 
