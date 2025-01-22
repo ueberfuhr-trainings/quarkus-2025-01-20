@@ -17,3 +17,8 @@ https://www.baeldung.com/quarkus-debug-apps
 ## Validierung
 
 ![Validierung](04-validierung.png)
+
+## Dependency Injection
+
+https://quarkus.io/guides/cdi-reference
+![Dependency Injection](05-dependency-injection.png)
