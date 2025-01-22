@@ -3,6 +3,7 @@ package de.schulungen.quarkus;
 
 // GET /customers -> 200
 
+import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.BadRequestException;
@@ -21,11 +22,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 
 import java.net.URI;
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Optional;
 import java.util.UUID;
 
 @Path("/customers")
@@ -33,18 +30,8 @@ public class CustomersResource {
 
   @Context
   UriInfo uriInfo;
-
-
-  private final HashMap<UUID, Customer> customers = new HashMap<>();
-
-  {
-    Customer customer = new Customer();
-    customer.setUuid(UUID.randomUUID());
-    customer.setName("Tom Mayer");
-    customer.setState(CustomerState.ACTIVE);
-    customer.setBirthdate(LocalDate.of(1990, Month.JULY, 1));
-    customers.put(customer.getUuid(), customer);
-  }
+  @Inject
+  CustomersService customerService;
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -53,8 +40,12 @@ public class CustomersResource {
     @Pattern(regexp = "active|locked|disabled")
     String state
   ) {
-    return customers
-      .values();
+    return (
+      state == null
+        ? customerService.getCustomers()
+        : customerService.getCustomersByState(CustomerState.valueOf(state.toUpperCase()))
+    )
+      .toList();
   }
 
   private static UUID fromParameter(String uuid) {
@@ -74,8 +65,8 @@ public class CustomersResource {
     @PathParam("uuid")
     String uuid
   ) {
-    return Optional
-      .ofNullable(customers.get(fromParameter(uuid)))
+    return customerService
+      .getCustomerByUuid(fromParameter(uuid))
       .orElseThrow(() -> new NotFoundException("Customer not found: " + uuid));
   }
 
@@ -87,12 +78,10 @@ public class CustomersResource {
     Customer customer
   ) {
 
-    var uuid = UUID.randomUUID();
-    customer.setUuid(uuid);
-    customers.put(uuid, customer);
+    customerService.createCustomer(customer);
 
     String location = uriInfo.getAbsolutePathBuilder()
-      .path(uuid.toString())
+      .path(customer.getUuid().toString())
       .build()
       .toString();
 
@@ -110,7 +99,7 @@ public class CustomersResource {
     @PathParam("uuid")
     String uuid
   ) {
-    if (null == customers.remove(fromParameter(uuid))) {
+    if (!customerService.deleteCustomer(fromParameter(uuid))) {
       throw new NotFoundException("Customer not found: " + uuid);
     }
   }
