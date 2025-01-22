@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
@@ -123,7 +125,7 @@ class CustomerApiTests {
       .body("state", is(equalTo("active")));
   }
 
-  @DisplayName("POST /customers (without name) -> 404")
+  @DisplayName("POST /customers (without name) -> 400")
   @Test
   void whenPostCustomersWithoutName_thenBadRequest() {
     given()
@@ -135,6 +137,70 @@ class CustomerApiTests {
           "state" : "active"
         }
         """)
+      .accept(ContentType.JSON)
+      .post("/customers")
+      .then()
+      .statusCode(400);
+  }
+
+  @DisplayName("POST /customers (name < 3chars) -> 400")
+  @Test
+  void whenPostCustomersWithNameTooShort_thenBadRequest() {
+    given()
+      .when()
+      .contentType(ContentType.JSON)
+      .body("""
+        {
+          "name": "Jo",
+          "birthdate": "2004-05-02",
+          "state" : "active"
+        }
+        """)
+      .accept(ContentType.JSON)
+      .post("/customers")
+      .then()
+      .statusCode(400);
+  }
+
+  @DisplayName("POST /customers (name > 100chars) -> 400")
+  @Test
+  void whenPostCustomersWithNameTooLong_thenBadRequest() {
+    given()
+      .when()
+      .contentType(ContentType.JSON)
+      .body(String.format("""
+        {
+          "name": "%s",
+          "birthdate": "2004-05-02",
+          "state" : "active"
+        }
+        """, "J".repeat(101)))
+      .accept(ContentType.JSON)
+      .post("/customers")
+      .then()
+      .statusCode(400);
+  }
+
+  @DisplayName("POST /customers (birthdate > today) -> 400")
+  @Test
+  void whenPostCustomersWithBirthdateInFuture_thenBadRequest() {
+    given()
+      .when()
+      .contentType(ContentType.JSON)
+      .body(String.format(
+          """
+            {
+              "name": "John",
+              "birthdate": "%s",
+              "state" : "active"
+            }
+            """,
+          LocalDate
+            .now()
+            .plusDays(1)
+            .format(DateTimeFormatter.ISO_LOCAL_DATE)
+        )
+      )
       .accept(ContentType.JSON)
       .post("/customers")
       .then()

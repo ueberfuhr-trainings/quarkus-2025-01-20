@@ -1,6 +1,9 @@
 package de.schulungen.quarkus;
 
 import jakarta.json.bind.annotation.JsonbTransient;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -8,7 +11,10 @@ import java.util.UUID;
 public class Customer {
 
   private UUID uuid;
+  @NotNull
+  @Size(min = 3, max = 100)
   private String name;
+  @Past
   private LocalDate birthdate;
   private CustomerState state = CustomerState.ACTIVE;
 

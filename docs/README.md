@@ -13,3 +13,7 @@ https://www.baeldung.com/quarkus-debug-apps
 
 ![Testen](03a-testen.png)
 ![TDD](03b-tdd.png)
+
+## Validierung
+
+![Validierung](04-validierung.png)
