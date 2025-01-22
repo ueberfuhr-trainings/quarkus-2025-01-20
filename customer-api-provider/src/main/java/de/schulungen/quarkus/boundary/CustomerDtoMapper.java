@@ -2,31 +2,17 @@ package de.schulungen.quarkus.boundary;
 
 import de.schulungen.quarkus.domain.Customer;
 import de.schulungen.quarkus.domain.CustomerState;
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.BadRequestException;
+import org.mapstruct.Mapper;
 
-@ApplicationScoped
-public class CustomerDtoMapper {
+@Mapper(componentModel = "cdi")
+public interface CustomerDtoMapper {
 
-  public CustomerDto map(Customer customer) {
-    CustomerDto customerDto = new CustomerDto();
-    customerDto.setUuid(customer.getUuid());
-    customerDto.setName(customer.getName());
-    customerDto.setBirthdate(customer.getBirthdate());
-    customerDto.setState(this.mapState(customer.getState()));
-    return customerDto;
-  }
+  CustomerDto map(Customer customer);
 
-  public Customer map(CustomerDto customerDto) {
-    Customer customer = new Customer();
-    customer.setUuid(customerDto.getUuid());
-    customer.setName(customerDto.getName());
-    customer.setBirthdate(customerDto.getBirthdate());
-    customer.setState(this.mapState(customerDto.getState()));
-    return customer;
-  }
+  Customer map(CustomerDto customerDto);
 
-  public String mapState(CustomerState state) {
+  default String mapState(CustomerState state) {
     return null == state ? null : switch (state) {
       case ACTIVE -> "active";
       case LOCKED -> "locked";
@@ -34,7 +20,7 @@ public class CustomerDtoMapper {
     };
   }
 
-  public CustomerState mapState(String state) {
+  default CustomerState mapState(String state) {
     return null == state ? null : switch (state) {
       case "active" -> CustomerState.ACTIVE;
       case "locked" -> CustomerState.LOCKED;
