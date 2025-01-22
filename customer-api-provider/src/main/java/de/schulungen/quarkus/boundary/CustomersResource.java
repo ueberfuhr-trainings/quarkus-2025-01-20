@@ -7,7 +7,6 @@ import de.schulungen.quarkus.domain.CustomersService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
-import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -24,7 +23,6 @@ import jakarta.ws.rs.core.UriInfo;
 
 import java.net.URI;
 import java.util.Collection;
-import java.util.UUID;
 
 @Path("/customers")
 public class CustomersResource {
@@ -35,6 +33,8 @@ public class CustomersResource {
   CustomersService customerService;
   @Inject
   CustomerDtoMapper mapper;
+  @Inject
+  UUIDMapper uuidMapper;
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -52,15 +52,6 @@ public class CustomersResource {
       .toList();
   }
 
-  // TODO mapper?
-  private static UUID fromParameter(String uuid) {
-    try {
-      return UUID.fromString(uuid);
-    } catch (IllegalArgumentException e) {
-      throw new BadRequestException("Invalid UUID: " + uuid);
-    }
-  }
-
   @GET
   @Path("/{uuid}")
   @Produces(MediaType.APPLICATION_JSON)
@@ -71,7 +62,7 @@ public class CustomersResource {
     String uuid
   ) {
     return customerService
-      .getCustomerByUuid(fromParameter(uuid))
+      .getCustomerByUuid(uuidMapper.map(uuid))
       .map(mapper::map)
       .orElseThrow(() -> new NotFoundException("Customer not found: " + uuid));
   }
@@ -89,7 +80,7 @@ public class CustomersResource {
     var responseDto = mapper.map(customer);
 
     String location = uriInfo.getAbsolutePathBuilder()
-      .path(customer.getUuid().toString())
+      .path(uuidMapper.map(customer.getUuid()))
       .build()
       .toString();
 
@@ -107,7 +98,7 @@ public class CustomersResource {
     @PathParam("uuid")
     String uuid
   ) {
-    if (!customerService.deleteCustomer(fromParameter(uuid))) {
+    if (!customerService.deleteCustomer(uuidMapper.map(uuid))) {
       throw new NotFoundException("Customer not found: " + uuid);
     }
   }
