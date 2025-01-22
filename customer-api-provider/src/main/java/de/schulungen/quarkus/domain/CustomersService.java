@@ -1,4 +1,4 @@
-package de.schulungen.quarkus;
+package de.schulungen.quarkus.domain;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.Valid;
