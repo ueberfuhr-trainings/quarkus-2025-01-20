@@ -1,4 +1,4 @@
-package de.schulungen.quarkus;
+package de.schulungen.quarkus.boundary;
 
 import jakarta.json.bind.JsonbException;
 import jakarta.ws.rs.core.Response;

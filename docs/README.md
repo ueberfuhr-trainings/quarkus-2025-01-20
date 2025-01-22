@@ -22,3 +22,7 @@ https://www.baeldung.com/quarkus-debug-apps
 
 https://quarkus.io/guides/cdi-reference
 ![Dependency Injection](05-dependency-injection.png)
+
+## Layers
+
+![Layers](06-layers.png)

@@ -1,6 +1,5 @@
-package de.schulungen.quarkus;
+package de.schulungen.quarkus.domain;
 
-import jakarta.json.bind.annotation.JsonbTransient;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
@@ -22,7 +21,6 @@ public class Customer {
     return uuid;
   }
 
-  @JsonbTransient
   public void setUuid(UUID uuid) {
     this.uuid = uuid;
   }

@@ -1,12 +1,12 @@
-package de.schulungen.quarkus;
+package de.schulungen.quarkus.boundary;
 
 
 // GET /customers -> 200
 
+import de.schulungen.quarkus.domain.CustomersService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
-import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -23,7 +23,6 @@ import jakarta.ws.rs.core.UriInfo;
 
 import java.net.URI;
 import java.util.Collection;
-import java.util.UUID;
 
 @Path("/customers")
 public class CustomersResource {
@@ -32,10 +31,14 @@ public class CustomersResource {
   UriInfo uriInfo;
   @Inject
   CustomersService customerService;
+  @Inject
+  CustomerDtoMapper mapper;
+  @Inject
+  UUIDMapper uuidMapper;
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public Collection<Customer> getCustomers(
+  public Collection<CustomerDto> getCustomers(
     @QueryParam("state")
     @Pattern(regexp = "active|locked|disabled")
     String state
@@ -43,30 +46,24 @@ public class CustomersResource {
     return (
       state == null
         ? customerService.getCustomers()
-        : customerService.getCustomersByState(CustomerState.valueOf(state.toUpperCase()))
+        : customerService.getCustomersByState(mapper.mapState(state))
     )
+      .map(mapper::map)
       .toList();
-  }
-
-  private static UUID fromParameter(String uuid) {
-    try {
-      return UUID.fromString(uuid);
-    } catch (IllegalArgumentException e) {
-      throw new BadRequestException("Invalid UUID: " + uuid);
-    }
   }
 
   @GET
   @Path("/{uuid}")
   @Produces(MediaType.APPLICATION_JSON)
-  public Customer getCustomer(
+  public CustomerDto getCustomer(
     // if we use UUID here directly,
     // JAX-RS will return 404 if the path parameter is syntactically invalid
     @PathParam("uuid")
     String uuid
   ) {
     return customerService
-      .getCustomerByUuid(fromParameter(uuid))
+      .getCustomerByUuid(uuidMapper.map(uuid))
+      .map(mapper::map)
       .orElseThrow(() -> new NotFoundException("Customer not found: " + uuid));
   }
 
@@ -75,19 +72,21 @@ public class CustomersResource {
   @Produces(MediaType.APPLICATION_JSON)
   public Response createCustomer(
     @Valid
-    Customer customer
+    CustomerDto customerDto
   ) {
 
+    var customer = mapper.map(customerDto);
     customerService.createCustomer(customer);
+    var responseDto = mapper.map(customer);
 
     String location = uriInfo.getAbsolutePathBuilder()
-      .path(customer.getUuid().toString())
+      .path(uuidMapper.map(customer.getUuid()))
       .build()
       .toString();
 
     return Response
       .created(URI.create(location))
-      .entity(customer)
+      .entity(responseDto)
       .build();
   }
 
@@ -99,7 +98,7 @@ public class CustomersResource {
     @PathParam("uuid")
     String uuid
   ) {
-    if (!customerService.deleteCustomer(fromParameter(uuid))) {
+    if (!customerService.deleteCustomer(uuidMapper.map(uuid))) {
       throw new NotFoundException("Customer not found: " + uuid);
     }
   }
