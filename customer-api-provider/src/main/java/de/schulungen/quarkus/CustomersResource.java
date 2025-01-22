@@ -3,6 +3,8 @@ package de.schulungen.quarkus;
 
 // GET /customers -> 200
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -23,7 +25,6 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -49,11 +50,9 @@ public class CustomersResource {
   @Produces(MediaType.APPLICATION_JSON)
   public Collection<Customer> getCustomers(
     @QueryParam("state")
+    @Pattern(regexp = "active|locked|disabled")
     String state
   ) {
-    if (null != state && !List.of("active", "locked", "disabled").contains(state)) {
-      throw new BadRequestException("Invalid state: " + state);
-    }
     return customers
       .values();
   }
@@ -84,12 +83,9 @@ public class CustomersResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   public Response createCustomer(
+    @Valid
     Customer customer
   ) {
-
-    if (null == customer.getName()) {
-      throw new BadRequestException("Customer name is required");
-    }
 
     var uuid = UUID.randomUUID();
     customer.setUuid(uuid);
