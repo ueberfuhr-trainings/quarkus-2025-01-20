@@ -3,8 +3,6 @@ package de.schulungen.quarkus.domain;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.Valid;
 
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
@@ -16,6 +14,7 @@ public class CustomersService {
   private final HashMap<UUID, Customer> customers = new HashMap<>();
 
   // TODO: extract?
+/*
   {
     Customer customer = new Customer();
     customer.setUuid(UUID.randomUUID());
@@ -24,7 +23,7 @@ public class CustomersService {
     customer.setBirthdate(LocalDate.of(1990, Month.JULY, 1));
     customers.put(customer.getUuid(), customer);
   }
-
+*/
   public Stream<Customer> getCustomers() {
     return customers
       .values()
@@ -55,5 +54,7 @@ public class CustomersService {
     return customers.containsKey(uuid);
   }
 
-
+  public long count() {
+    return customers.size();
+  }
 }
