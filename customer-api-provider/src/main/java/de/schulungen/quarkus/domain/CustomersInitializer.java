@@ -1,17 +1,32 @@
 package de.schulungen.quarkus.domain;
 
+import io.quarkus.arc.properties.IfBuildProperty;
 import io.quarkus.runtime.Startup;
-import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import java.time.LocalDate;
 import java.time.Month;
 
-@Dependent
+@ApplicationScoped
+// @IfBuildProfile("dev") // nur für DEV
+// @UnlessBuildProfile("prod") // für alles außer PROD
+@IfBuildProperty(
+  name = "customers.initialization.enabled",
+  stringValue = "true"
+)
 public class CustomersInitializer {
 
   @Inject
   CustomersService customersService;
+
+  /*
+  @ConfigProperty(
+    name = "customers.initialization.enabled",
+    defaultValue = "false"
+  )
+  boolean enabled; // if (enabled) {...}
+  */
 
   @Startup
   public void init() {
