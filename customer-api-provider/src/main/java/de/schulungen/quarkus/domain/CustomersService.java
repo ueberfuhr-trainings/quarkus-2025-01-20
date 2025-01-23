@@ -1,6 +1,8 @@
 package de.schulungen.quarkus.domain;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 
 import java.util.HashMap;
@@ -10,6 +12,9 @@ import java.util.stream.Stream;
 
 @ApplicationScoped
 public class CustomersService {
+
+  @Inject
+  Event<CustomerCreatedEvent> eventPublisher;
 
   private final HashMap<UUID, Customer> customers = new HashMap<>();
 
@@ -33,6 +38,7 @@ public class CustomersService {
     var uuid = UUID.randomUUID();
     customer.setUuid(uuid);
     customers.put(customer.getUuid(), customer);
+    eventPublisher.fireAsync(new CustomerCreatedEvent(customer));
   }
 
   public boolean deleteCustomer(UUID uuid) {
