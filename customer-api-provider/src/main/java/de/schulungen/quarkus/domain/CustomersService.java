@@ -13,17 +13,6 @@ public class CustomersService {
 
   private final HashMap<UUID, Customer> customers = new HashMap<>();
 
-  // TODO: extract?
-/*
-  {
-    Customer customer = new Customer();
-    customer.setUuid(UUID.randomUUID());
-    customer.setName("Tom Mayer");
-    customer.setState(CustomerState.ACTIVE);
-    customer.setBirthdate(LocalDate.of(1990, Month.JULY, 1));
-    customers.put(customer.getUuid(), customer);
-  }
-*/
   public Stream<Customer> getCustomers() {
     return customers
       .values()
