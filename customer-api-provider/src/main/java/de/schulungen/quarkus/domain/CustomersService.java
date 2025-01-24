@@ -3,10 +3,10 @@ package de.schulungen.quarkus.domain;
 import de.schulungen.quarkus.shared.interceptors.FireEvent;
 import de.schulungen.quarkus.shared.interceptors.LogPerformance;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import org.jboss.logging.Logger;
 
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -14,42 +14,37 @@ import java.util.stream.Stream;
 @ApplicationScoped
 public class CustomersService {
 
-  private final HashMap<UUID, Customer> customers = new HashMap<>();
+  @Inject
+  CustomersSink sink;
 
   public Stream<Customer> getCustomers() {
-    return customers
-      .values()
-      .stream();
+    return sink.findCustomers();
   }
 
   public Stream<Customer> getCustomersByState(CustomerState state) {
-    return getCustomers()
-      .filter(customer -> customer.getState() == state);
+    return sink.findCustomersByState(state);
   }
 
   public Optional<Customer> getCustomerByUuid(UUID uuid) {
-    return Optional
-      .ofNullable(customers.get(uuid));
+    return sink.findCustomerByUuid(uuid);
   }
 
   @LogPerformance
   @FireEvent(CustomerCreatedEvent.class)
   public void createCustomer(@Valid Customer customer) {
-    var uuid = UUID.randomUUID();
-    customer.setUuid(uuid);
-    customers.put(customer.getUuid(), customer);
+    sink.createCustomer(customer);
   }
 
   @LogPerformance(Logger.Level.DEBUG)
   public boolean deleteCustomer(UUID uuid) {
-    return null != customers.remove(uuid);
+    return sink.deleteCustomer(uuid);
   }
 
   public boolean existsCustomer(UUID uuid) {
-    return customers.containsKey(uuid);
+    return sink.existsCustomer(uuid);
   }
 
   public long count() {
-    return customers.size();
+    return sink.count();
   }
 }
