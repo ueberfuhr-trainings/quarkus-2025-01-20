@@ -32,7 +32,12 @@ class CustomersServiceTests {
 
     var result = customerService.getCustomerByUuid(customer.getUuid());
     Assertions.assertTrue(result.isPresent());
-    Assertions.assertSame(customer, result.get());
+    var resultCustomer = result.get();
+    // TODO AssertJ verwenden
+    Assertions.assertEquals(customer.getUuid(), resultCustomer.getUuid());
+    Assertions.assertEquals(customer.getName(), resultCustomer.getName());
+    Assertions.assertEquals(customer.getBirthdate(), resultCustomer.getBirthdate());
+    Assertions.assertEquals(customer.getState(), resultCustomer.getState());
 
   }
 

@@ -31,3 +31,7 @@ https://quarkus.io/guides/cdi-reference
 ## Interceptors
 
 ![Interceptors](07-interceptors.png)
+
+## Database Access
+
+![DB Access](08-db-access.png)
