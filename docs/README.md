@@ -25,7 +25,8 @@ https://quarkus.io/guides/cdi-reference
 
 ## Layers
 
-![Layers](06-layers.png)
+![Layers](06a-layers.png)
+![Persistence](06b-persistence-layer.png)
 
 ## Interceptors
 
