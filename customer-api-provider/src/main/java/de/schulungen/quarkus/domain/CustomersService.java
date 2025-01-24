@@ -1,9 +1,10 @@
 package de.schulungen.quarkus.domain;
 
+import de.schulungen.quarkus.shared.interceptors.FireEvent;
+import de.schulungen.quarkus.shared.interceptors.LogPerformance;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Event;
-import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import org.jboss.logging.Logger;
 
 import java.util.HashMap;
 import java.util.Optional;
@@ -12,9 +13,6 @@ import java.util.stream.Stream;
 
 @ApplicationScoped
 public class CustomersService {
-
-  @Inject
-  Event<CustomerCreatedEvent> eventPublisher;
 
   private final HashMap<UUID, Customer> customers = new HashMap<>();
 
@@ -34,13 +32,15 @@ public class CustomersService {
       .ofNullable(customers.get(uuid));
   }
 
+  @LogPerformance
+  @FireEvent(CustomerCreatedEvent.class)
   public void createCustomer(@Valid Customer customer) {
     var uuid = UUID.randomUUID();
     customer.setUuid(uuid);
     customers.put(customer.getUuid(), customer);
-    eventPublisher.fireAsync(new CustomerCreatedEvent(customer));
   }
 
+  @LogPerformance(Logger.Level.DEBUG)
   public boolean deleteCustomer(UUID uuid) {
     return null != customers.remove(uuid);
   }
